@@ -1,34 +1,88 @@
-import os
 import csv
+import os
 
+DATA_DIR = "data"
+WORDS_FILENAME = "words.csv"
+SENTENCES_FILENAME = "sentences.csv"
+WORDS_DATA_FILENAME = "words_data.csv"
+SENTENCES_DATA_FILENAME = "sentences_data.csv"
 
-# 저장할 폴더를 확인하고 없으면 생성합니다.
 
 def save_data(table):
-    output_folder = "data"
-    if not os.path.exists(output_folder):
-        os.makedirs(output_folder)
+    words_table = {k: v for k, v in table.items() if k.startswith(
+        '영어 단어') or k.startswith('번역된 한국어 단어')}
+    sentences_table = {k: v for k, v in table.items() if k.startswith(
+        '영어 문장') or k.startswith('번역된 한국어 문장')}
 
-    # 영어 문장과 번역된 한국어 문장을 저장합니다.
-    with open(os.path.join(output_folder, "sentences.csv"), "w", newline="", encoding="utf-8") as csvfile:
+    save_individual_data(words_table, WORDS_FILENAME)
+    save_individual_data(sentences_table, SENTENCES_FILENAME)
+
+    save_cumulative_data(words_table, WORDS_DATA_FILENAME)
+    save_cumulative_data(sentences_table, SENTENCES_DATA_FILENAME)
+
+
+def save_individual_data(table, filename):
+    filepath = os.path.join(DATA_DIR, filename)
+
+    if not os.path.exists(DATA_DIR):
+        os.makedirs(DATA_DIR)
+
+    with open(filepath, 'w', newline='', encoding='utf-8') as csvfile:
         writer = csv.writer(csvfile)
-        writer.writerow(["영어 문장", "번역된 한국어 문장"])
+        writer.writerow(table.keys())
+        writer.writerows(zip(*table.values()))
 
-        for en_sentence, ko_sentence in zip(table["영어 문장"], table["번역된 한국어 문장"]):
-            writer.writerow([en_sentence, ko_sentence])
+    print(f"{filename}에 새로운 데이터가 저장되었습니다.")
 
-    # 영어 단어와 번역된 한국어 단어를 저장합니다.
-    with open(os.path.join(output_folder, "words.csv"), "w", newline="", encoding="utf-8") as csvfile:
+def save_cumulative_data(table, filename):
+    filepath = os.path.join(DATA_DIR, filename)
+
+    if not os.path.exists(DATA_DIR):
+        os.makedirs(DATA_DIR)
+
+    existing_data = []
+    if os.path.exists(filepath):
+        with open(filepath, newline='', encoding='utf-8') as csvfile:
+            reader = csv.reader(csvfile)
+            try:
+                header = next(reader)
+            except StopIteration:
+                header = None
+
+            if header:
+                for row in reader:
+                    existing_data.append(row)
+
+    new_data = list(zip(*table.values()))
+
+    # 중복 단어 제거 로직
+    existing_data_dict = {}
+    for row in existing_data:
+        english_word, translated_word = row
+        if english_word not in existing_data_dict:
+            existing_data_dict[english_word] = set()
+        existing_data_dict[english_word].add(translated_word)
+
+    filtered_data = []
+    for row in new_data:
+        english_word, translated_word = row
+        if len(english_word) > 1 and (english_word not in existing_data_dict or translated_word not in existing_data_dict[english_word]):
+            filtered_data.append(row)
+            if english_word not in existing_data_dict:
+                existing_data_dict[english_word] = set()
+            existing_data_dict[english_word].add(translated_word)
+
+    with open(filepath, 'w', newline='', encoding='utf-8') as csvfile:
         writer = csv.writer(csvfile)
-        writer.writerow(["영어 단어", "번역된 한국어 단어"])
+        if header:
+            writer.writerow(header)
+        else:
+            writer.writerow(table.keys())
+        writer.writerows(existing_data)
+        if filename == 'sentences_data.csv':
+            writer.writerow([' '.join([item[0] for item in filtered_data]), ' '.join([item[1] for item in filtered_data])])
+        else:
+            writer.writerows(filtered_data)
 
-        for en_word, ko_word in zip(table["영어 단어"], table["번역된 한국어 단어"]):
-            writer.writerow([en_word, ko_word])
+    print(f"{filename}에 기존 데이터가 보존되고 새로운 데이터가 추가되었습니다.")
 
-    print("테이블 데이터가 data 폴더에 저장되었습니다.")
-
-def main():
-    pass
-
-if __name__ == "__main__":
-    main()

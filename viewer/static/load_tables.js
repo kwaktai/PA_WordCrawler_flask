@@ -1,7 +1,7 @@
 window.addEventListener('load', async () => {
   try {
-    const sentencesResponse = await fetch('/csv?file=sentences.csv');
-    const wordsResponse = await fetch('/csv?file=words.csv');
+    const sentencesResponse = await fetch('/csv?file=sentences_data.csv');
+    const wordsResponse = await fetch('/csv?file=words_data.csv');
 
     if (sentencesResponse.ok && wordsResponse.ok) {
       const sentencesHtml = await sentencesResponse.text();

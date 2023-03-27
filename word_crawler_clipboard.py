@@ -31,9 +31,12 @@ table = {
     "번역된 한국어 단어": []
 }
 
+_original_text = ""
+
 
 def main(input_text):
-    global table
+    global _original_text
+    _original_text = input_text
 
     # 클립보드의 텍스트를 가져옵니다.
     text = input_text
@@ -82,6 +85,10 @@ def main(input_text):
 
 def get_table():
     return table
+
+
+def get_original_text():
+    return _original_text
 
 
 def save_to_csv():
