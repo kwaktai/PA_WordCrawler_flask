@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Word Storage</title>
+  </head>
+  <body>
+    <h1>Store Words from a Sentence</h1>
+    <form id="input-form">
+      <label for="sentence">Enter a sentence:</label>
+      <input type="text" id="sentence" name="sentence" />
+      <button type="submit">Store Words</button>
+    </form>
+    <h2>Stored Words:</h2>
+    <ul id="word-list"></ul>
+
+    <script>
+      document.getElementById('input-form').addEventListener('submit', async event => {
+        event.preventDefault();
+
+        const sentence = document.getElementById('sentence').value;
+        const words = sentence.split(' ');
+
+        const response = await fetch('/store_words', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ words: words }),
+        });
+
+        const storedWords = await response.json();
+        const wordList = document.getElementById('word-list');
+        wordList.innerHTML = '';
+
+        for (const word of storedWords) {
+          const listItem = document.createElement('li');
+          listItem.textContent = word;
+          wordList.appendChild(listItem);
+        }
+      });
+    </script>
+  </body>
+</html>

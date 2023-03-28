@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Results</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="tab">
+      <button class="tablinks" onclick="openTab(event, 'sentences')">Sentences</button>
+      <button class="tablinks" onclick="openTab(event, 'words')">Words</button>
+    </div>
+
+    <div id="sentences" class="tabcontent">
+      <h2>Sentences</h2>
+      <table id="sentences_table"></table>
+    </div>
+
+    <div id="words" class="tabcontent">
+      <h2>Words</h2>
+      <table id="words_table"></table>
+    </div>
+
+    <script src="load_tables.js"></script>
+  </body>
+</html>
