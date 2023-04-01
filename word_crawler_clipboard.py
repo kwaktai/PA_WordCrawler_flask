@@ -34,11 +34,10 @@ table = {
 _original_text = ""
 
 
-def main(input_text):
+def process_text(input_text):
     global _original_text
     _original_text = input_text
 
-    # 클립보드의 텍스트를 가져옵니다.
     text = input_text
 
     # 텍스트에서 영어 단어를 추출합니다.
@@ -109,8 +108,3 @@ def save_to_csv():
 
     # 결합된 데이터를 CSV 파일에 저장합니다.
     combined_data.to_csv(csv_file, index=False)
-
-
-# if __name__ == "__main__":
-#     main()
-#     save_to_csv()

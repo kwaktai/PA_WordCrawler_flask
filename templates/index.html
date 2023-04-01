@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Word Crawler and Storage</title>
+  </head>
+  <body>
+    <h1>Word Crawler and Storage</h1>
+    <form id="input-form">
+      <label for="input-text">Enter text:</label>
+      <textarea id="input-text" name="input-text" rows="4" cols="50"></textarea>
+      <button type="submit">Process Text</button>
+    </form>
+    <h2>Results:</h2>
+    <pre id="results"></pre>
+
+    <script>
+      document.getElementById('input-form').addEventListener('submit', async event => {
+        event.preventDefault();
+
+        const inputText = document.getElementById('input-text').value;
+
+        const response = await fetch('/process_text', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ input_text: inputText }),
+        });
+
+        const results = await response.json();
+        const resultsContainer = document.getElementById('results');
+        resultsContainer.innerHTML = JSON.stringify(results, null, 2);
+      });
+    </script>
+  </body>
+</html>

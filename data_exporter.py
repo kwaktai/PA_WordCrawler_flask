@@ -34,6 +34,7 @@ def save_individual_data(table, filename):
 
     print(f"{filename}에 새로운 데이터가 저장되었습니다.")
 
+
 def save_cumulative_data(table, filename):
     filepath = os.path.join(DATA_DIR, filename)
 
@@ -78,11 +79,16 @@ def save_cumulative_data(table, filename):
             writer.writerow(header)
         else:
             writer.writerow(table.keys())
-        writer.writerows(existing_data)
-        if filename == 'sentences_data.csv':
-            writer.writerow([' '.join([item[0] for item in filtered_data]), ' '.join([item[1] for item in filtered_data])])
-        else:
-            writer.writerows(filtered_data)
+
+        # 기존 데이터와 새로운 데이터를 결합합니다.
+        combined_data = existing_data + filtered_data
+
+        # 모든 데이터의 길이가 같아지도록 공백을 추가합니다.
+        max_length = max([len(row) for row in combined_data])
+        for i, row in enumerate(combined_data):
+            if len(row) < max_length:
+                combined_data[i] += [''] * (max_length - len(row))
+
+        writer.writerows(combined_data)
 
     print(f"{filename}에 기존 데이터가 보존되고 새로운 데이터가 추가되었습니다.")
-
