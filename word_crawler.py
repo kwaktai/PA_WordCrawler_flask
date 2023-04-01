@@ -8,6 +8,7 @@ from tkinter import messagebox
 
 def translate_text(text: str) -> Tuple[List[Tuple[str, str]], List[Tuple[str, int]]]:
     # 번역기 객체를 생성합니다.
+    print("translate_text_TEST")
     translator = Translator()
 
     # 영어 문장과 번역된 한국어 문장을 저장할 리스트를 생성합니다.
@@ -49,7 +50,8 @@ def translate_word(word: str) -> str:
     translator = Translator()
 
     # 단어를 번역합니다.
-    translated_word = translator.translate(word, src="en", dest="ko").text
+    translated_word = translator.translate(
+        word, src="en", dest="ko").text.strip()
     print(translated_word)
     return translated_word
 
@@ -113,18 +115,28 @@ def save_cumulative_data(table, filename):
     # 중복 단어 제거 로직
     existing_data_dict = {}
     for row in existing_data:
+        if len(row) != 2:  # Add this check to ensure the row has 2 elements
+            print(f"Skipping row with incorrect format: {row}")
+            continue
         english_word, translated_word = row
         if english_word not in existing_data_dict:
-            existing_data_dict[english_word] = set()
-        existing_data_dict[english_word].add(translated_word)
+            existing_data_dict[english_word] = {translated_word}
+        else:
+            existing_data_dict[english_word].add(translated_word)
 
     filtered_data = []
     for row in new_data:
+        if len(row) != 2:  # Add this check to ensure the row has 2 elements
+            print(f"Skipping row with incorrect format: {row}")
+            continue
         english_word, translated_word = row
-        if len(english_word) > 1 and (english_word not in existing_data_dict or translated_word not in existing_data_dict[english_word]):
+        if english_word not in existing_data_dict:
             filtered_data.append(row)
             if english_word not in existing_data_dict:
                 existing_data_dict[english_word] = set()
+            existing_data_dict[english_word].add(translated_word)
+        elif translated_word not in existing_data_dict[english_word]:
+            filtered_data.append(row)
             existing_data_dict[english_word].add(translated_word)
 
     with open(filepath, 'w', newline='', encoding='utf-8') as csvfile:
@@ -138,21 +150,27 @@ def save_cumulative_data(table, filename):
         combined_data = existing_data + filtered_data
 
         # 모든 데이터의 길이가 같아지도록 공백을 추가합니다.
-        max_length = max([len(row) for row in combined_data])
-        for i, row in enumerate(combined_data):
+        max_length = max([len(row) for row in existing_data + new_data])
+        for i, row in enumerate(existing_data):
             if len(row) < max_length:
-                combined_data[i] += [''] * (max_length - len(row))
+                existing_data[i] += [''] * (max_length - len(row))
+        for i, row in enumerate(new_data):
+            if len(row) < max_length:
+                new_data[i] = row + ('',) * (max_length - len(row))
+
+# 기존 데이터와 새로운 데이터를 결합합니다.
+        combined_data = existing_data + new_data
 
         writer.writerows(combined_data)
 
     print(f"{filename}에 기존 데이터가 보존되고 새로운 데이터가 추가되었습니다.")
 
-
 # translate_text(
 #     "Hello, world. I am a student. I am studying English. I am studying Python. I am studying Englis")
 
+
 if __name__ == "__main__":
-    text = "Hello, world. I am a student. I am studying English. I am studying Python. I am studying Englis"
+    text = "Artificial intelligence is as revolutionary as mobile phones and the Internet."
     translated_sentences, translated_words = translate_text(text)
     # 데이터를 저장합니다.
     save_data({

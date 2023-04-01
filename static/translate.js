@@ -2,8 +2,8 @@ const form = document.querySelector('form');
 const translateBtn = document.getElementById('translate-btn');
 const resultContainer = document.getElementById('result-container');
 const result = document.getElementById('result');
-
-translateBtn.addEventListener('click', () => {
+form.addEventListener('submit', event => {
+  event.preventDefault();
   const text = document.getElementById('text-input').value;
   if (text.trim() === '') {
     alert('Please enter some text.');
