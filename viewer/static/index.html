@@ -1,27 +1,57 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Results</title>
-    <link rel="stylesheet" href="styles.css" />
+    <title>Translator</title>
   </head>
   <body>
-    <div class="tab">
-      <button class="tablinks" onclick="openTab(event, 'sentences')">Sentences</button>
-      <button class="tablinks" onclick="openTab(event, 'words')">Words</button>
-    </div>
-
-    <div id="sentences" class="tabcontent">
-      <h2>Sentences</h2>
-      <table id="sentences_table"></table>
-    </div>
-
-    <div id="words" class="tabcontent">
-      <h2>Words</h2>
-      <table id="words_table"></table>
-    </div>
-
-    <script src="load_tables.js"></script>
+    <h1>Translator</h1>
+    <form id="translate-form">
+      <label for="translate-input">Enter text111:</label><br />
+      <textarea id="translate-input" name="translate-input" rows="4" cols="50"></textarea><br />
+      <button type="submit">Translate</button>
+    </form>
+    <br />
+    <h2>Translation Result:</h2>
+    <div id="translate-output"></div>
   </body>
+</html>
+<script>
+  const form = document.getElementById('translate-form');
+  form.addEventListener('submit', event => {
+    event.preventDefault();
+    const text = document.getElementById('translate-input').value;
+    fetch('/translate', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ text: text }),
+    })
+      .then(response => response.json())
+      .then(data => {
+        const output = document.getElementById('translate-output');
+        output.innerHTML = '';
+        for (const sentence of data.sentences) {
+          const source = sentence.source;
+          const target = sentence.target;
+          const sentenceDiv = document.createElement('div');
+          sentenceDiv.innerHTML = `<p><strong>${source}</strong> &rarr; ${target}</p>`;
+          output.appendChild(sentenceDiv);
+        }
+        const wordsDiv = document.createElement('div');
+        wordsDiv.innerHTML = '<h3>Top 20 Words:</h3>';
+        output.appendChild(wordsDiv);
+        for (const word of data.words) {
+          const source = word.source;
+          const target = word.target;
+          const wordDiv = document.createElement('div');
+          wordDiv.innerHTML = `<p><strong>${source}</strong> &rarr; ${target}</p>`;
+          wordsDiv.appendChild(wordDiv);
+        }
+      })
+      .catch(error => console.error(error));
+  });
+</script>
+</body>
 </html>

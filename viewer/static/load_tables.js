@@ -16,3 +16,45 @@ window.addEventListener('load', async () => {
     console.error(err);
   }
 });
+
+async function submitText() {
+  const text = document.getElementById('input-text').value;
+  const response = await fetch('/process_text', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    body: `text=${encodeURIComponent(text)}`,
+  });
+
+  if (response.ok) {
+    const result = await response.json();
+    console.log(result);
+  } else {
+    console.error('Failed to submit text');
+  }
+}
+
+document.getElementById('input_form').addEventListener('submit', async event => {
+  event.preventDefault();
+
+  const text = document.getElementById('text').value;
+
+  try {
+    const response = await fetch('/process_text', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: new URLSearchParams({ text }),
+    });
+
+    if (response.ok) {
+      console.log('Text processed successfully');
+    } else {
+      console.error('Failed to process text');
+    }
+  } catch (err) {
+    console.error(err);
+  }
+});

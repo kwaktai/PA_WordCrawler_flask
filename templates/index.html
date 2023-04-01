@@ -1,39 +1,58 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
   <head>
     <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Word Crawler and Storage</title>
+    <title>Translator11</title>
   </head>
   <body>
-    <h1>Word Crawler and Storage</h1>
-    <form id="input-form">
-      <label for="input-text">Enter text:</label>
-      <textarea id="input-text" name="input-text" rows="4" cols="50"></textarea>
-      <button type="submit">Process Text</button>
+    <h1>Translator11</h1>
+    <form id="translate-form">
+      <label for="translate-input">Enter text111:</label><br />
+      <textarea id="translate-input" name="translate-input" rows="4" cols="50"></textarea><br />
+      <button type="submit">Translate</button>
     </form>
-    <h2>Results:</h2>
-    <pre id="results"></pre>
-
-    <script>
-      document.getElementById('input-form').addEventListener('submit', async event => {
-        event.preventDefault();
-
-        const inputText = document.getElementById('input-text').value;
-
-        const response = await fetch('/process_text', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ input_text: inputText }),
-        });
-
-        const results = await response.json();
-        const resultsContainer = document.getElementById('results');
-        resultsContainer.innerHTML = JSON.stringify(results, null, 2);
-      });
-    </script>
+    <br />
+    <h2>Translation Result:</h2>
+    <div id="translate-output"></div>
   </body>
+</html>
+<script src="/static/translate.js"></script>
+<script>
+  const form = document.getElementById('translate-form');
+  form.addEventListener('submit', event => {
+    event.preventDefault();
+    const text = document.getElementById('translate-input').value;
+    fetch('/translate', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ text: text }),
+    })
+      .then(response => response.json())
+      .then(data => {
+        const output = document.getElementById('translate-output');
+        output.innerHTML = '';
+        for (const sentence of data.sentences) {
+          const source = sentence.source;
+          const target = sentence.target;
+          const sentenceDiv = document.createElement('div');
+          sentenceDiv.innerHTML = `<p><strong>${source}</strong> &rarr; ${target}</p>`;
+          output.appendChild(sentenceDiv);
+        }
+        const wordsDiv = document.createElement('div');
+        wordsDiv.innerHTML = '<h3>Top 20 Words:</h3>';
+        output.appendChild(wordsDiv);
+        for (const word of data.words) {
+          const source = word.source;
+          const target = word.target;
+          const wordDiv = document.createElement('div');
+          wordDiv.innerHTML = `<p><strong>${source}</strong> &rarr; ${target}</p>`;
+          wordsDiv.appendChild(wordDiv);
+        }
+      })
+      .catch(error => console.error(error));
+  });
+</script>
+
 </html>

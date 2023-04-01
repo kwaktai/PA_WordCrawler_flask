@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
-import word_crawler_clipboard as wcc
+import word_crawler as wcc
 import data_exporter as de
 
 
